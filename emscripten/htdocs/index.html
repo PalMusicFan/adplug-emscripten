@@ -81,7 +81,47 @@ function doOnPlayerReady() {
 	if (playerControls) playerControls.playNextSong();
 }
 
+function iOSUnlockWebAudio() {
+	var ctx = null, usingWebAudio = true;
+	try {
+	if (typeof AudioContext !== 'undefined') {
+		  ctx = new AudioContext();
+	  } else if (typeof webkitAudioContext !== 'undefined') {
+		  ctx = new webkitAudioContext();
+	  } else {
+		  usingWebAudio = false;
+	  }
+	} catch(e) {
+		usingWebAudio = false;
+	}
+	// context state at this time is `undefined` in iOS8 Safari
+	if (usingWebAudio && ctx.state === 'suspended') {
+	var resume = function () {
+	ctx.resume();
+	setTimeout(function () {
+	if (ctx.state === 'running') {
+	window._gPlayerAudioCtx = ctx;
+	$('#splash').remove();
+	cont(ctx);
+		  }
+		}, 0);
+	  };
+	$('#splash').css({
+	  'width': $(window).width(),
+	  'height': $(window).height(),
+	  'font-size': '100pt',
+	});
+	$('#splash')[0].addEventListener('touchend', resume, false);
+	}
+}
+
 function init() {
+	if( /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream )
+		iOSUnlockWebAudio(cont);
+	else
+		cont();
+}
+function cont() {
 	// --------------------------- AdPlug music player -----------------------
 	var basePath= '';		// not needed here
 	// preload all the intrastructure files so we won't run into async load issues later
@@ -93,10 +133,13 @@ function init() {
 	];		
 	ScriptNodePlayer.createInstance(new AdPlugBackendAdapter(), basePath, files, true, doOnPlayerReady,
 										doOnTrackReadyToPlay, doOnTrackEnd);
+	ScriptNodePlayer.getInstance().setTraceMode(1);
 		
 	// --------------------------- UI - basic player controls --------------
 	var songs = [
 		// optional: use format "filename;%" where % is number of the track to be played
+		'music/69.RIX',
+		'music/83.RIX',
 		'music/blaster2.msc',
 		'music/BOOTUP.M',
 		'music/dro_v2.dro',
@@ -137,6 +180,9 @@ function init() {
 </head>
 
 <body onload="init();">
+<div id="splash" style="width:100%;height:100%;font-size:0pt;">
+<h style="position: absolute;top: 50%;transform: translateY(-50%);"><center>click to start play</center></h>
+</div>
 <div class="tooltip" id="tooltip" alt= "This is a hobby project, but it costs not only time to regularily maintain this site but also money to pay for the internet service provider (etc). If you want to keep this site up and running.. or if you just like my work (see https://jwothke.wordpress.com/) and you'd like to see more of it in the future, please make a contribution. Thank you!"></div>
 
 <details>
