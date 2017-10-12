@@ -16,34 +16,35 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * emuopl.h - Emulated OPL, by Simon Peter <dn.tlp@gmx.net>
+ * demuopl.h - Emulated OPL using DOSBOX's emulator, by Wei Mingzhi
+ *             <whistler_wmz@users.sf.net>.
  */
 
-#ifndef H_ADPLUG_EMUOPL
-#define H_ADPLUG_EMUOPL
-
+#ifndef H_ADPLUG_DEMUOPL
+#define H_ADPLUG_DEMUOPL
 
 #include "opl.h"
-extern "C" {
-#include "fmopl.h"
-}
+#include "dosbox_opl.h"
 
-class CEmuopl: public Copl {
+#include <assert.h>
+
+class CDemuopl: public Copl
+{
 public:
-   CEmuopl(int rate, bool bit16, bool usestereo);	// rate = sample rate
-   virtual ~CEmuopl();
+    CDemuopl(int rate, bool bit16, bool usestereo);
+	~CDemuopl();
 
-   void update(short *buf, int samples);			// fill buffer
-   void write(int reg, int val);
-
-   void init();
-   void settype(ChipType type);
-
-private:
-   bool		use16bit, stereo;
-   FM_OPL	*opl[2];				// OPL2 emulator data
-   short		*mixbuf0, *mixbuf1;
-   int		mixbufSamples, rate;
+    void update(short *buf, int samples);
+    
+    // template methods
+    void write(int reg, int val);
+    
+    void init();
+    
+protected:
+	opl_chip* chip;
+	int rate;
+	bool use16bit, stereo;
 };
 
 #endif

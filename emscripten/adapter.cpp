@@ -20,7 +20,8 @@
 
 #include "../src/adplug.h"
 #include "../src/opl.h"
-#include "../src/emuopl.h"
+#include "../src/demuopl.h"
+#include "../src/surroundopl.h"
 #include "../src/database.h"
 
 #include "output.h"
@@ -39,7 +40,7 @@
 #define NUM_MAX	15
 
 short	*outputBuffer=0;
-CEmuopl	*opl= 0;
+Copl	*opl= 0;
 BufPlayer	*player= 0;
 const char* infoTexts[6];
 
@@ -86,7 +87,10 @@ extern "C" EMSCRIPTEN_KEEPALIVE int emu_init(int sample_rate, char *basedir, cha
 		
 	std::string	fn = std::string(basedir) + songmodule;  
 
-	opl = new CEmuopl(sample_rate, true, true);
+	opl = new CSurroundopl(
+				new CDemuopl(sample_rate, true, false),
+				new CDemuopl(sample_rate, true, false),
+				true, sample_rate, 384);
 	player= new BufPlayer(opl, 16, 2, sample_rate, BUF_SIZE);
 	
 	// initialize output & player

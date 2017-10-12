@@ -183,13 +183,13 @@ std::string CimfPlayer::getdesc()
 
 float CimfPlayer::getrate(const std::string &filename, const CFileProvider &fp, binistream *f)
 {
-  if(db) {	// Database available
+/* if(db) {	// Database available
     f->seek(0, binio::Set);
     CClockRecord *record = (CClockRecord *)db->search(CAdPlugDatabase::CKey(*f));
     if (record && record->type == CAdPlugDatabase::CRecord::ClockSpeed)
       return record->clock;
   }
-
+*/
   // Otherwise the database is either unavailable, or there's no entry for this file
   if (fp.extension(filename, ".imf")) return 560.0f;
   if (fp.extension(filename, ".wlf")) return 700.0f;
